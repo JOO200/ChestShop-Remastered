@@ -1,0 +1,22 @@
+# Created by .ignore support plugin (hsz.mobi)
+# Eclipse
+.classpath
+.project
+.settings/
+/bin
+
+# Intellij
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/libraries
+.idea/dictionaries
+*.iws
+
+# Mac
+.DS_Store
+
+# Gradle
+.gradle
+/local.properties
+/build
+/bower_components
