@@ -2,7 +2,9 @@ package de.joo.chestshop.listener.player;
 
 import de.joo.chestshop.events.TransactionEvent;
 import de.joo.chestshop.executor.PreTransaction;
+import de.joo.chestshop.migration.MigrationManager;
 import de.joo.chestshop.models.Transaction;
+import de.joo.chestshop.plugin.ChestShop;
 import de.joo.chestshop.signs.ChestShopSign;
 import de.joo.chestshop.transaction.TransactionOutcome;
 import org.bukkit.Bukkit;
@@ -47,6 +49,10 @@ public class PlayerInteract implements Listener {
             return;
 
         Sign sign = (Sign) block.getState();
+        if(ChestShop.migration != null && MigrationManager.isOldSign(sign)) {
+            ChestShop.migration.handleOldSign(event);
+            return;
+        }
         if (!ChestShopSign.isValid(sign)) {
             System.out.println("Ungültig");
             return;

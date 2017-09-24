@@ -2,6 +2,7 @@ package de.joo.chestshop.db;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import de.exlll.databaselib.submit.CheckedSqlFunction;
 import de.exlll.databaselib.submit.PluginSqlTaskSubmitter;
 import de.joo.chestshop.config.GeneralConfig;
 import de.joo.chestshop.plugin.ChestShop;
@@ -11,8 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Created by Johannes on 25.04.2017.
@@ -121,6 +126,24 @@ public class DatabaseController extends PluginSqlTaskSubmitter {
         }
     }
 
+
+    public boolean itemListIsEmpty() {
+        boolean returnValue = true;
+        try {
+            Connection conn = getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT count(*) FROM " + config.getItemTable());
+            if(rs.next()) {
+                if(rs.getInt(1) > 0) returnValue = false;
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return true;
+        }
+        return returnValue;
+    }
 
     public void getID(final UUID uuid, BiConsumer<Integer, Exception> callback) {
         submitConnectionTask(connection -> {
@@ -232,7 +255,6 @@ public class DatabaseController extends PluginSqlTaskSubmitter {
     }
 
     public int getItemIDfromCodeSync(String string) throws SQLException {
-        System.out.println("ItemID " + Calendar.getInstance().getTimeInMillis());
         Connection connection = getSyncConnection();
         int id = -1;
         PreparedStatement pStmt = connection.prepareStatement(
@@ -263,6 +285,7 @@ public class DatabaseController extends PluginSqlTaskSubmitter {
     }
 
     public void getCodeFromItemID(int id, BiConsumer<String, Exception> callback) {
+
         submitConnectionTask(connection -> {
             String code = null;
             PreparedStatement pStmt = connection.prepareStatement(
@@ -295,10 +318,38 @@ public class DatabaseController extends PluginSqlTaskSubmitter {
         rs.close();
         pStmt.close();
         return code;
+    }
 
+    public void addAllItems(Map<Integer, String> map, Consumer<Exception> callback) {
+        submitConnectionTask(connection -> {
+            connection.setAutoCommit(false);
+            PreparedStatement pStmt = connection.prepareStatement(
+                    "INSERT INTO " + config.getItemTable() + " (id,itemCode) VALUES (?,?);"
+            );
+            for(Map.Entry<Integer, String> entry: map.entrySet()) {
+                pStmt.setInt(1, entry.getKey());
+                pStmt.setString(2, entry.getValue());
+                pStmt.addBatch();
+            }
+            connection.commit();
+            connection.setAutoCommit(true);
+        }, callback);
+    }
+    public class Test implements Callable<String> {
+        Connection conn;
+
+        public Test(Connection conn) {
+            this.conn = conn;
+        }
+
+        @Override
+        public String call() throws Exception {
+            return "Huhu";
+        }
     }
 
     protected synchronized Connection getSyncConnection() throws SQLException {
         return super.getConnection();
     }
+
 }

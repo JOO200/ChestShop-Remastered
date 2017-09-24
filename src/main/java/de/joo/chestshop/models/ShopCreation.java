@@ -1,5 +1,6 @@
 package de.joo.chestshop.models;
 
+import de.joo.chestshop.plugin.ChestShop;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -88,6 +89,15 @@ public class ShopCreation {
 
     public static HandlerList getHandlerList() {
         return handlers;
+    }
+
+    public void updateSign() {
+        // ja, das kann man noch schöner machen.
+        sign.setLine(ChestShop.ITEM_LINE, signLines[ChestShop.ITEM_LINE]);
+        sign.setLine(ChestShop.AMOUNT_LINE, signLines[ChestShop.AMOUNT_LINE]);
+        sign.setLine(ChestShop.PRICE_LINE, signLines[ChestShop.PRICE_LINE]);
+        sign.setLine(ChestShop.NAME_LINE, signLines[ChestShop.NAME_LINE]);
+        sign.update();
     }
 
     public enum CreationOutcome {

@@ -1,13 +1,17 @@
 package de.joo.chestshop.plugin;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import de.exlll.asynclib.exec.PluginTaskService;
+import de.exlll.asynclib.exec.ServiceConfig;
 import de.joo.chestshop.config.GeneralConfig;
 import de.joo.chestshop.db.DatabaseController;
 import de.joo.chestshop.listener.block.BlockPlace;
 import de.joo.chestshop.listener.player.PlayerInteract;
 import de.joo.chestshop.listener.shopcreation.WorldGuardListener;
+import de.joo.chestshop.migration.MigrationManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,6 +54,9 @@ public class ChestShop extends JavaPlugin {
 
     public static DatabaseController db;
     public static Logger log;
+    public static MigrationManager migration;
+
+    public static PluginTaskService asynService;
 
     private boolean getWorldGuard() {
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
@@ -64,6 +71,11 @@ public class ChestShop extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ServiceConfig serviceConfig = new ServiceConfig.Builder()
+                .setPollPeriod(1)
+                .setPoolSize(2, 5)
+                .build();
+        asynService = new PluginTaskService(this, serviceConfig);
         if(!setupEconomy()) {
             log.severe("Vault wurde nicht gefunden. Deaktiviere Plugin");
             getServer().getPluginManager().disablePlugin(this);
@@ -81,6 +93,17 @@ public class ChestShop extends JavaPlugin {
         //}
         getServer().getPluginManager().registerEvents(new BlockPlace(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteract(), this);
+
+        checkOldChestShop();
+    }
+
+    private void checkOldChestShop() {
+        if(Bukkit.getPluginManager().isPluginEnabled("ChestShop")){
+            migration = new MigrationManager(this);
+            // Deaktiviere ChestShop-Listener. Wir machen alles über die Remastered-Version
+            getLogger().warning("Old ChestShop-Version found. Disabling Old ChestShop Listener");
+
+        }
     }
 
     public static List<String> getAdminShops() {

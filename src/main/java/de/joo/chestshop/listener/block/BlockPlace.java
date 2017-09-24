@@ -57,9 +57,6 @@ public class BlockPlace implements Listener {
         if (!ChestShopSign.isValidPreparedSign(line)) {
             return;
         }
-
-
-
         Sign sign = (Sign)event.getBlock().getState();
         Chest chest = ChestFinder.findConnectedChest(sign);
 
@@ -72,10 +69,16 @@ public class BlockPlace implements Listener {
 
         ShopCreation sC = new ShopCreation(event.getPlayer(), chest, sign, event.getLines());
 
-        // PreShopCreationEvent has to be async but Spigot dont support asynch events fired from synch events.
+        // ShopCreaton has to be async but Spigot dont support asynch events fired from synch events.
         PreShopCreation preShopCreation = new PreShopCreation(sC, plugin);
-        Bukkit.getScheduler().runTask(ChestShop.getPlugin(ChestShop.class), preShopCreation);
-        //AsyncTask task = AsyncTasks.newAsyncTask(preShopCreation, () -> {  });
-        //task.execute();
+
+        AsyncTask task = AsyncTasks.newAsyncTask(preShopCreation, () -> {
+            sC.updateSign();
+            ShopCreationEvent postEvent = new ShopCreationEvent(
+                    sC.getPlayer(), sC.getSign(),
+                    sC.getChest(), sC.getSignLines());
+            Bukkit.getPluginManager().callEvent(postEvent);
+        });
+        ChestShop.asynService.execute(task);
     }
 }

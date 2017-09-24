@@ -3,6 +3,8 @@ package de.joo.chestshop.util;
 
 import de.joo.chestshop.util.encoding.Base62;
 import de.joo.chestshop.util.encoding.Base64;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.file.YamlConstructor;
 import org.bukkit.configuration.file.YamlRepresenter;
 import org.bukkit.inventory.ItemStack;
@@ -17,11 +19,6 @@ import java.io.IOException;
  */
 public class ItemUtil {
 
-    private final Yaml yaml;
-
-    public ItemUtil() {
-        yaml = new Yaml(new YamlBukkitConstructor(), new YamlRepresenter(), new DumperOptions());
-    }
 
     /**
      * Gets the item code for this item
@@ -29,13 +26,11 @@ public class ItemUtil {
      * @param item Item
      * @return Item code for this item
      */
-    public String getItemCode(ItemStack item) {
-        try {
-            return Base64.encodeObject(yaml.dump(new ItemStack(item)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static String getItemCode(ItemStack item) {
+        item.setAmount(1);
+        YamlConfiguration config = new YamlConfiguration();
+        config.set("item", item);
+        return config.saveToString();
     }
 
     /**
@@ -44,21 +39,14 @@ public class ItemUtil {
      * @param code Item code
      * @return ItemStack represented by this code
      */
-    public ItemStack getFromCode(String code)
+    public static ItemStack getFromCode(String code)
     {
-        // TODO java.lang.StackOverflowError - http://pastebin.com/eRD8wUFM - Corrupt item DB?
+        YamlConfiguration config = new YamlConfiguration();
         try {
-            return yaml.loadAs((String)Base64.decodeToObject(code), ItemStack.class);
-        } catch (IOException | ClassNotFoundException e) {
+            config.loadFromString(code);
+        } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        return null;
-    }
-
-    private class YamlBukkitConstructor extends YamlConstructor {
-        public YamlBukkitConstructor() {
-            this.yamlConstructors.put(new Tag(Tag.PREFIX + "org.bukkit.inventory.ItemStack"), yamlConstructors.get(Tag.MAP));
-        }
-
+        return config.getItemStack("item");
     }
 }

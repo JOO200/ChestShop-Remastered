@@ -1,5 +1,6 @@
 package de.joo.chestshop.executor;
 
+import de.exlll.asynclib.task.AsyncTask;
 import de.joo.chestshop.events.ShopCreationEvent;
 import de.joo.chestshop.ids.ItemManager;
 import de.joo.chestshop.ids.NameManager;
@@ -7,7 +8,6 @@ import de.joo.chestshop.models.ShopCreation;
 import de.joo.chestshop.plugin.ChestShop;
 import de.joo.chestshop.plugin.PermissionHelper;
 import de.joo.chestshop.util.ChestFinder;
-import net.minecraft.server.v1_12_R1.InventoryClickType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
@@ -55,20 +55,6 @@ public class PreShopCreation implements Runnable {
         }
 
         service.shutdown();
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            Sign sign = creation.getSign();
-            // ja, das kann man noch schöner machen.
-            sign.setLine(ChestShop.ITEM_LINE, creation.getSignLines()[ChestShop.ITEM_LINE]);
-            sign.setLine(ChestShop.AMOUNT_LINE, creation.getSignLines()[ChestShop.AMOUNT_LINE]);
-            sign.setLine(ChestShop.PRICE_LINE, creation.getSignLines()[ChestShop.PRICE_LINE]);
-            sign.setLine(ChestShop.NAME_LINE, creation.getSignLines()[ChestShop.NAME_LINE]);
-            sign.update();
-
-            ShopCreationEvent postEvent = new ShopCreationEvent(creation.getPlayer(), creation.getSign(),
-                    creation.getChest(), creation.getSignLines());
-            Bukkit.getPluginManager().callEvent(postEvent);
-        });
     }
 
     private static String replaceName(ShopCreation creation) {

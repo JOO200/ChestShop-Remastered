@@ -43,6 +43,7 @@ repositories {
         url "http://exlll.de:8081/artifactory/releases"
     }
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url 'https://repo.minebench.de/' }
     flatDir {
         dirs 'libs'
     }
@@ -51,7 +52,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile group: 'org.spigotmc', name: 'spigot-api', version: '1.12-R0.1-SNAPSHOT', changing: false, transitive: false
-    compile group: 'org.bukkit', name: 'craftbukkit', version: '1.12-R0.1-SNAPSHOT', changing: false, transitive: false
+    // compile group: 'org.bukkit', name: 'craftbukkit', version: '1.12-R0.1-SNAPSHOT', changing: false, transitive: false
     // compile group: 'tc.plugins', name: 'bukkit', version: 'SERVER-SNAPSHOT', changing: true, transitive: false
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.0-beta9', changing: true, transitive: true
     compile group: 'org.mcstats.bukkit', name: 'metrics', version: 'R8-SNAPSHOT', changing: true, transitive: false
@@ -61,5 +62,7 @@ dependencies {
     compile group: 'de.exlll', name: 'databaselib-bukkit', version: '2.0.0'
     compile group: 'de.exlll', name: 'configlib-bukkit', version: '1.4.0'
     compile group: 'de.exlll', name: 'asynclib-bukkit', version: '2.1.0'
+
+    compile group: 'com.acrobot.chestshop', name: 'chestshop', version: '3.8.13-SNAPSHOT', changing: false, transitive: true
     //compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
 }

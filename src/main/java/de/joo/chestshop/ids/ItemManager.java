@@ -19,7 +19,6 @@ import java.util.logging.Logger;
  */
 public class ItemManager {
     private static Logger log = ChestShop.log;
-    private static ItemUtil util = new ItemUtil();
 
     private static Map<String, Integer> base64ToID = new HashMap<>();
     private static Map<Integer, String> idToBase64 = new HashMap<>();
@@ -34,7 +33,7 @@ public class ItemManager {
      * @return Base64-codiertes Item
      */
     public static String getItemCode(ItemStack item) {
-        return util.getItemCode(item);
+        return ItemUtil.getItemCode(item);
     }
 
     /**
@@ -44,7 +43,7 @@ public class ItemManager {
      * @return ItemStack
      */
     public static ItemStack getFromCode(String code) {
-        return util.getFromCode(code);
+        return ItemUtil.getFromCode(code);
 
     }
 
